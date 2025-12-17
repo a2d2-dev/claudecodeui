@@ -1,0 +1,73 @@
+# 90_PROGRESS_LOG.yaml
+# 功能模块：Claude UI
+# 最后更新：2025-12-17 00:00:00
+
+meta:
+  feature: claude-ui
+  feature_name: "Claude UI"
+  current_phase: 1  # Kickoff
+  status: wip
+  owner: "{请补充}"
+  started_at: 2025-12-17
+  last_updated: 2025-12-17 00:00:00
+
+# ============================================================
+# Phase 1: Kickoff（功能启动）- 进行中
+# ============================================================
+phase_1_kickoff:
+  status: wip
+  tasks:
+    - id: KICK-001
+      task: "创建功能目录 docs/claude-ui/"
+      status: done
+      completed_at: 2025-12-17
+
+    - id: KICK-002
+      task: "编写 10_CONTEXT.md 功能上下文"
+      status: wip
+      notes: "需要补充功能描述和目标"
+
+    - id: KICK-003
+      task: "创建 90_PROGRESS_LOG.yaml"
+      status: done
+      completed_at: 2025-12-17
+
+# ============================================================
+# Phase 2: Spec（需求规格）- 待开始
+# ============================================================
+phase_2_spec:
+  status: pending
+  tasks:
+    - id: SPEC-001
+      task: "编写 40_DESIGN_FINAL.md"
+      status: pending
+
+# ============================================================
+# Phase 5: Code（开发实现）- 待开始
+# ============================================================
+phase_5_code:
+  status: pending
+  tasks: []
+
+# ============================================================
+# Claude Code 断点恢复信息
+# ============================================================
+cc_checkpoint:
+  session_id: "cc-2025-12-17-start-claude-ui"
+  last_file_edited: "docs/claude-ui/10_CONTEXT.md"
+  last_action: "创建功能目录和初始文档"
+  next_step: "补充 10_CONTEXT.md 中的功能描述和目标"
+  context_files:
+    - "docs/claude-ui/10_CONTEXT.md"
+    - "docs/claude-ui/90_PROGRESS_LOG.yaml"
+
+# ============================================================
+# 统计信息
+# ============================================================
+stats:
+  total_tasks: 4
+  done: 2
+  wip: 1
+  pending: 1
+  completion_rate: "50%"
+  next_milestone: "完成 Kickoff 阶段，进入 Spec"
