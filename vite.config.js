@@ -10,6 +10,7 @@ export default defineConfig(({ command, mode }) => {
     plugins: [react()],
     server: {
       port: parseInt(env.VITE_PORT) || 5173,
+      allowedHosts: ['claudeui.a2d2.dev'],
       proxy: {
         '/api': `http://localhost:${env.PORT || 3001}`,
         '/ws': {
