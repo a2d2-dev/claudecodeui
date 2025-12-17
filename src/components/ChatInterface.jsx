@@ -2007,9 +2007,21 @@ function ChatInterface({ selectedProject, selectedSession, ws, sendMessage, mess
           content: '❌ Command execution cancelled',
           timestamp: Date.now()
         }]);
+        // Clear command menu state
+        setInput('');
+        setShowCommandMenu(false);
+        setSlashPosition(-1);
+        setCommandQuery('');
+        setSelectedCommandIndex(-1);
         return;
       }
     }
+
+    // Clear command menu state first
+    setShowCommandMenu(false);
+    setSlashPosition(-1);
+    setCommandQuery('');
+    setSelectedCommandIndex(-1);
 
     // Set the input to the command content
     setInput(content);
@@ -2066,17 +2078,17 @@ function ChatInterface({ selectedProject, selectedSession, ws, sendMessage, mess
       // Handle built-in commands
       if (result.type === 'builtin') {
         handleBuiltInCommand(result);
+        // Clear the input after successful execution for built-in commands
+        setInput('');
+        setShowCommandMenu(false);
+        setSlashPosition(-1);
+        setCommandQuery('');
+        setSelectedCommandIndex(-1);
       } else if (result.type === 'custom') {
         // Handle custom commands - inject as system message
+        // Don't clear input here - handleCustomCommand will handle it after submission
         await handleCustomCommand(result, args);
       }
-
-      // Clear the input after successful execution
-      setInput('');
-      setShowCommandMenu(false);
-      setSlashPosition(-1);
-      setCommandQuery('');
-      setSelectedCommandIndex(-1);
 
     } catch (error) {
       console.error('Error executing command:', error);
@@ -4746,11 +4758,29 @@ function ChatInterface({ selectedProject, selectedSession, ws, sendMessage, mess
               disabled={!input.trim() || isLoading}
               onMouseDown={(e) => {
                 e.preventDefault();
-                handleSubmit(e);
+                // If command menu is showing, execute the selected/first command
+                if (showCommandMenu && filteredCommands.length > 0) {
+                  if (selectedCommandIndex >= 0) {
+                    selectCommand(filteredCommands[selectedCommandIndex]);
+                  } else {
+                    selectCommand(filteredCommands[0]);
+                  }
+                } else {
+                  handleSubmit(e);
+                }
               }}
               onTouchStart={(e) => {
                 e.preventDefault();
-                handleSubmit(e);
+                // If command menu is showing, execute the selected/first command
+                if (showCommandMenu && filteredCommands.length > 0) {
+                  if (selectedCommandIndex >= 0) {
+                    selectCommand(filteredCommands[selectedCommandIndex]);
+                  } else {
+                    selectCommand(filteredCommands[0]);
+                  }
+                } else {
+                  handleSubmit(e);
+                }
               }}
               className="absolute right-2 top-1/2 transform -translate-y-1/2 w-12 h-12 sm:w-12 sm:h-12 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed rounded-full flex items-center justify-center transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:ring-offset-gray-800"
             >
