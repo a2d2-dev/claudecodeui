@@ -20,6 +20,7 @@ const validateApiKey = (req, res, next) => {
 
 // JWT authentication middleware
 const authenticateToken = async (req, res, next) => {
+  console.info('authenticateToken, Platform mode:', process.env.VITE_IS_PLATFORM);
   // Platform mode:  use single database user
   if (process.env.VITE_IS_PLATFORM === 'true') {
     try {
