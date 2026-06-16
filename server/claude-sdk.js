@@ -50,6 +50,7 @@ function mapCliOptionsToSDK(options = {}) {
   // Handle tool permissions
   if (settings.skipPermissions && permissionMode !== 'plan') {
     // When skipping permissions, use bypassPermissions mode
+    // Note: This will fail if running as root due to Claude Code security restrictions
     sdkOptions.permissionMode = 'bypassPermissions';
   } else {
     // Map allowed tools
@@ -354,8 +355,22 @@ async function queryClaudeSDK(command, options = {}, ws) {
   let tempDir = null;
 
   try {
+    // Debug: Log incoming options
+    console.log('🔍 [SDK Debug] Incoming options:', JSON.stringify({
+      sessionId: options.sessionId,
+      cwd: options.cwd,
+      projectPath: options.projectPath,
+      permissionMode: options.permissionMode,
+      model: options.model,
+      hasImages: !!(options.images && options.images.length),
+      toolsSettings: options.toolsSettings
+    }, null, 2));
+
     // Map CLI options to SDK format
     const sdkOptions = mapCliOptionsToSDK(options);
+
+    // Debug: Log mapped SDK options
+    console.log('🔍 [SDK Debug] Mapped sdkOptions:', JSON.stringify(sdkOptions, null, 2));
 
     // Load MCP configuration
     const mcpServers = await loadMcpConfig(options.cwd);
@@ -368,6 +383,11 @@ async function queryClaudeSDK(command, options = {}, ws) {
     const finalCommand = imageResult.modifiedCommand;
     tempImagePaths = imageResult.tempImagePaths;
     tempDir = imageResult.tempDir;
+
+    // Enable stderr capture for better error messages
+    sdkOptions.stderr = (message) => {
+      console.error('[Claude CLI stderr]:', message);
+    };
 
     // Create SDK query instance
     const queryInstance = query({
@@ -457,10 +477,25 @@ async function queryClaudeSDK(command, options = {}, ws) {
     // Clean up temporary image files on error
     await cleanupTempFiles(tempImagePaths, tempDir);
 
+    // Provide more detailed error messages
+    let errorMessage = error.message;
+    let errorHint = '';
+
+    // Check for specific error patterns
+    if (error.message && error.message.includes('status code 400')) {
+      errorMessage = 'API request failed: Invalid request parameters';
+      errorHint = 'The session may be corrupted. Try starting a new session instead of resuming this one.';
+    } else if (error.message && error.message.includes('process exited')) {
+      errorMessage = 'Claude Code process terminated unexpectedly';
+      errorHint = 'This may be caused by corrupted session data or invalid API request. Consider starting a fresh session.';
+    }
+
     // Send error to WebSocket
     ws.send(JSON.stringify({
       type: 'claude-error',
-      error: error.message
+      error: errorMessage,
+      hint: errorHint,
+      sessionId: capturedSessionId
     }));
 
     throw error;
